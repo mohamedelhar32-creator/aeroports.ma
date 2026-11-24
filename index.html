@@ -8,11 +8,13 @@
         <meta name="apple-mobile-web-app-capable" content="yes">
         <link rel="stylesheet" href="css/leaflet.css">
         <link rel="stylesheet" href="css/L.Control.Layers.Tree.css">
+        <link rel="stylesheet" href="css/L.Control.Locate.min.css">
         <link rel="stylesheet" href="css/qgis2web.css">
         <link rel="stylesheet" href="css/fontawesome-all.min.css">
         <link rel="stylesheet" href="css/MarkerCluster.css">
         <link rel="stylesheet" href="css/MarkerCluster.Default.css">
         <link rel="stylesheet" href="css/leaflet.photon.css">
+        <link rel="stylesheet" href="css/leaflet-measure.css">
         <style>
         #map {
             width: 934px;
@@ -22,11 +24,13 @@
         <title></title>
     </head>
     <body>
+        <div style="position: absolute; top: 15px; left: 50%; transform: translateX(-50%); z-index: 1000; background: rgba(255, 255, 255, 0.9); padding: 10px 25px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.3); font-family: Arial, sans-serif; font-weight: bold; font-size: 20px; color: #333;">LES aeroports au Maroc</div>
         <div id="map">
         </div>
         <script src="js/qgis2web_expressions.js"></script>
         <script src="js/leaflet.js"></script>
         <script src="js/L.Control.Layers.Tree.min.js"></script>
+        <script src="js/L.Control.Locate.min.js"></script>
         <script src="js/multi-style-layer.js"></script>
         <script src="js/leaflet.rotatedMarker.js"></script>
         <script src="js/leaflet.pattern.js"></script>
@@ -36,6 +40,7 @@
         <script src="js/labelgun.min.js"></script>
         <script src="js/labels.js"></script>
         <script src="js/leaflet.photon.js"></script>
+        <script src="js/leaflet-measure.js"></script>
         <script src="js/leaflet.markercluster.js"></script>
         <script src="data/Regions_MAR_0.js"></script>
         <script src="data/Limites_MAR_1.js"></script>
@@ -59,7 +64,7 @@
         }
         var map = L.map('map', {
             zoomControl:false, maxZoom:28, minZoom:1
-        }).fitBounds([[19.913978919019726,-20.403456005604458],[38.244357727994036,8.799814165274274]]);
+        }).fitBounds([[28.593491620021233,-18.084741421221377],[46.923870428995535,11.11852874965734]]);
         var hash = new L.Hash(map);
         map.attributionControl.setPrefix('<a href="https://github.com/qgis2web/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
         var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
@@ -138,6 +143,17 @@
         var zoomControl = L.control.zoom({
             position: 'topleft'
         }).addTo(map);
+        L.control.locate({locateOptions: {maxZoom: 19}}).addTo(map);
+        var measureControl = new L.Control.Measure({
+            position: 'topleft',
+            primaryLengthUnit: 'meters',
+            secondaryLengthUnit: 'kilometers',
+            primaryAreaUnit: 'sqmeters',
+            secondaryAreaUnit: 'hectares'
+        });
+        measureControl.addTo(map);
+        document.getElementsByClassName('leaflet-control-measure-toggle')[0].innerHTML = '';
+        document.getElementsByClassName('leaflet-control-measure-toggle')[0].className += ' fas fa-ruler';
         var bounds_group = new L.featureGroup([]);
         function setBounds() {
         }
@@ -257,32 +273,32 @@
         function style_Limites_MAR_1_0() {
             return {
                 pane: 'pane_Limites_MAR_1',
-                opacity: 1,
-                color: 'rgba(247,247,247,1.0)',
-                dashArray: '',
-                lineCap: 'butt',
-                lineJoin: 'miter',
-                weight: 1.0, 
+                stroke: false, 
                 fill: true,
                 fillOpacity: 1,
-                fillColor: 'rgba(145,106,106,1.0)',
+                fillColor: 'rgba(207,168,255,0.6627450980392157)',
+                interactive: true,
+            }
+        }
+        function style_Limites_MAR_1_1() {
+            return {
+                pane: 'pane_Limites_MAR_1',
                 interactive: true,
             }
         }
         map.createPane('pane_Limites_MAR_1');
         map.getPane('pane_Limites_MAR_1').style.zIndex = 401;
         map.getPane('pane_Limites_MAR_1').style['mix-blend-mode'] = 'normal';
-        var layer_Limites_MAR_1 = new L.geoJson(json_Limites_MAR_1, {
+        var layer_Limites_MAR_1 = new L.geoJson.multiStyle(json_Limites_MAR_1, {
             attribution: '',
             interactive: true,
             dataVar: 'json_Limites_MAR_1',
             layerName: 'layer_Limites_MAR_1',
             pane: 'pane_Limites_MAR_1',
             onEachFeature: pop_Limites_MAR_1,
-            style: style_Limites_MAR_1_0,
+            styles: [style_Limites_MAR_1_0,style_Limites_MAR_1_1,]
         });
         bounds_group.addLayer(layer_Limites_MAR_1);
-        map.addLayer(layer_Limites_MAR_1);
         function pop_Aearoports_MAR_2(feature, layer) {
             layer.on({
                 mouseout: function(e) {
